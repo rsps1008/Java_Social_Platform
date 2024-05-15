@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Posts</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <div id="app">
+        <button @click="addPost">新增貼文</button>
+        <div v-if="posts.length > 0">
+            <div v-for="post in posts" :key="post.id">
+                <h2>{{ post.user }}</h2>
+                <p>{{ post.content }}</p>
+                <img :src="post.imageUrl" alt="Image">
+                <p>{{ post.createdTime }}</p>
+                <hr>
+            </div>
+        </div>
+        <div v-else>
+            <p>目前沒有貼文</p>
+        </div>
+    </div>
+
+    <script>
+        new Vue({
+            el: '#app',
+            data: {
+                posts: []
+            },
+            created() {
+                // 檢查用戶是否已經登錄，如果沒有，則重定向到 index.html
+                if (!sessionStorage.getItem('loggedIn')) {
+                    window.location.href = 'index.html';
+                } else {
+                    this.getAllPosts();
+                }
+            },
+            methods: {
+                getAllPosts() {
+                    axios.post('/getAllPost')
+                        .then(response => {
+                            this.posts = response.data;
+                        })
+                        .catch(error => {
+                            console.error('Error fetching posts:', error);
+                        });
+                },
+                addPost() {
+                    const newPost = {
+                        user: 'User', // 替換為當前用戶的名稱
+                        content: '新貼文內容',
+                        imageUrl: 'https://example.com/image.jpg', // 替換為圖片的URL
+                        createdTime: new Date().toISOString() // 使用當前時間作為貼文的創建時間
+                    };
+
+                    axios.post('/addAllPost', newPost)
+                        .then(response => {
+                            console.log('Post added successfully:', response.data);
+                            // 添加成功後重新加載貼文列表
+                            this.getAllPosts();
+                        })
+                        .catch(error => {
+                            console.error('Error adding post:', error);
+                        });
+                }
+            }
+        });
+    </script>
+</body>
+</html>
