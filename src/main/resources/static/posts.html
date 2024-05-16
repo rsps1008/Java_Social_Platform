@@ -65,7 +65,7 @@
                         <td style="border: 1px solid #ccc; padding: 20px;">
                             <div  style="border: 1px solid #ccc; padding: 10px;">
                             <div>
-                                <img src="./image/head.png" style="width:50px; height:50px;">
+                                <img :src="'data:image/png;base64,' + post.UserImage" style="width:50px; height:50px;">
                                 <div style="display: inline-block;">
                                     <strong>{{ post.UserName }}</strong><br>
                                     <small>{{ formatDate(post.Created) }}</small>
@@ -86,7 +86,7 @@
 							</div>
 							<div  style="border: 1px solid #ccc; padding: 10px;">
 							<div>
-								<img v-if="post.Image !== null && typeof post.Image !== 'undefined' && post.Image !== ''" :src="'data:image/png;base64,' + post.Image" style="max-width: 200px; max-height: 200px;">
+								<img v-if="post.Image !== null && typeof post.Image !== 'undefined' && post.Image !== ''" :src="'data:image/png;base64,' + post.Image" style="max-width: 80%; max-height: 400px;">
 							</div>
 							<div>
 								<h3>Comments</h3>
@@ -119,6 +119,7 @@
             data: {
                 loggedIn: false,
                 user: '',
+                userId: '',
                 posts: [],
                 newPost: {
                     user: '',
@@ -191,11 +192,13 @@
                     // Check cookies for login status
                     var loggedInCookie = Cookies.get('loggedIn');
                     var userCookie = Cookies.get('user');
+                    var userCookieId = Cookies.get('userId');
 					
 					//console.log("loggedInCookie",loggedInCookie);
                     if (loggedInCookie == '1') {
                         this.loggedIn = true;
                         this.user = userCookie;
+                        this.userId = userCookieId;
                     } else {
                         this.loggedIn = false;
                         // Optionally redirect to login page
@@ -279,7 +282,7 @@
 				},
 				addComment(post) {
 					axios.post('/CommentController/addComment', {
-						userId: post.UserID,
+						userId: this.userId,
 						postId: post.PostID,
 						content: post.commentContent
 					})

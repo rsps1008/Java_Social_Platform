@@ -20,6 +20,17 @@
 			padding: 80px; /* 添加一些內邊距 */
 			text-align: center; /* 使內部文字居中 */
 		}
+		#fileInput {
+			display: none;
+		}
+		.custom-file-upload {
+			display: inline-block;
+			padding: 1px 2px;
+			cursor: pointer;
+			background-color: #f8f9fa;
+			border: 1px solid #ccc;
+			border-radius: 4px;
+		}
 	</style>
 </head>
 <body>
@@ -41,8 +52,14 @@
                 手機: <input type="tel" v-model="registerForm.name" placeholder="Telephone"><br/><br/>
                 信箱: <input type="email" v-model="registerForm.email" placeholder="Email"><br/><br/>
                 密碼: <input type="password" v-model="registerForm.password" placeholder="Password"><br/><br/>
-                圖片: <input type="text" v-model="registerForm.coverImage" placeholder="Cover Image URL"><br/><br/>
                 自介: <textarea v-model="registerForm.biography" placeholder="Biography"></textarea><br/><br/>
+				圖片: 
+				<!-- <input type="text" v-model="registerForm.coverImage" placeholder="Cover Image URL"><br/><br/> -->
+				<input type="file" id="fileInput" @change="handleImageChange" accept=".png"/>
+				<label for="fileInput" class="custom-file-upload">
+					選擇照片
+				</label><br/>
+				<img id="preview" v-if="imageSrc" :src="imageSrc" style="max-width: 100px; max-height: 100px;"/><br/><br/>
                 <button type="button" @click="register">註冊</button>
                 <button type="button" @click="toggleView">返回登入</button> <!-- @submit.prevent="register" -->
             </form>
@@ -64,7 +81,8 @@
                     password: '',
                     coverImage: '',
                     biography: ''
-                }
+                },
+				imageSrc: null
             },
             methods: {
 				login() {
@@ -82,21 +100,49 @@
 							// Handle login failure
 						});
 				},
-                register() {
-					console.log(this.registerForm);
-                    axios.post('/UserController/register', this.registerForm)
-                        .then(response => {
-                            alert('Registration successful');
-                            // Handle registration success
-                        })
-                        .catch(error => {
-                            alert('Registration failed');
-                            // Handle registration failure
-                        });
-                },
+				register() {
+					// 使用 FormData 將資料和圖片一併上傳
+					const formData = new FormData();
+					formData.append('name', this.registerForm.name);
+					formData.append('email', this.registerForm.email);
+					formData.append('password', this.registerForm.password);
+					formData.append('biography', this.registerForm.biography);
+					if (this.registerForm.coverImage) {
+						formData.append('coverImage', this.registerForm.coverImage);
+					}
+
+					axios.post('/UserController/register', formData, {
+						headers: {
+							'Content-Type': 'multipart/form-data'
+						}
+					})
+					.then(response => {
+						console.log('Post added successfully:', response.data);
+						alert("註冊成功");
+						this.registerForm = { name: '', email: '', password: '', coverImage: '' , biography: ''  }; // 清空輸入字段
+						this.imageSrc = null;
+					})
+					.catch(error => {
+						console.error('Error adding new post:', error);
+						alert("註冊失敗");
+					});
+				},
                 toggleView() {
                     this.showLogin = !this.showLogin;
-                }
+                },
+				handleImageChange(event) {
+					const file = event.target.files[0]; // 取得選擇的檔案
+					if (file && file.type.startsWith('image/')) { // 確認是否為圖片檔案
+						this.registerForm.coverImage = file;
+						const reader = new FileReader(); // 建立一個 FileReader 來讀取檔案
+						reader.onload = (e) => {
+							this.imageSrc = e.target.result; // 將讀取到的圖片結果賦值給 imageSrc
+						};
+						reader.readAsDataURL(file); // 讀取檔案為 Data URL
+					} else {
+						this.imageSrc = null; // 如果不是圖片檔，清空預覽
+					}
+				}
             }
         });
     </script>

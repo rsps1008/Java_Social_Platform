@@ -5,7 +5,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 //import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import socailPlatform.JavaSocialPlatformApplication.LoginInfo;
 //import socailPlatform.JavaSocialPlatformApplication.LoginStatus;
@@ -31,7 +33,7 @@ public class UserController {
 	
 	@PostMapping("/UserController/login")
     public boolean login(@RequestBody LoginInfo user, HttpServletResponse response) {
-		boolean login = userService.login(user.username ,user.password);
+		boolean login = userService.login(user.username ,user.password, response);
 		Cookie loggedIn_cookie;
 		Cookie username_cookie;
 		if(login) {
@@ -55,8 +57,12 @@ public class UserController {
     }
 
     @PostMapping("/UserController/register")
-    public boolean register(@RequestBody RegisterInfo user) {
-    	return userService.register(user.name ,user.email, user.password, user.coverImage, user.biography);
+	public boolean register(@RequestParam("name") String name,
+            				@RequestParam("email") String email,
+            				@RequestParam("password") String password,
+            				@RequestParam(value = "coverImage", required = false) MultipartFile image,
+            				@RequestParam("biography") String biography) {
+		return userService.register(name, email, password, image, biography);
     }
-    
 }
+

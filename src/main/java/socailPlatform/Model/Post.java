@@ -18,7 +18,7 @@ public class Post {
     private JdbcTemplate jdbcTemplate;
 	
 	public List<Map<String, Object>> getAllPosts() {
-		String sql = "SELECT post.*, user.name AS UserName FROM post JOIN user ON post.UserID = user.id ORDER BY `post`.`Created` DESC;";
+		String sql = "SELECT post.*, user.name AS UserName, user.image AS UserImage FROM post JOIN user ON post.UserID = user.id ORDER BY `post`.`Created` DESC;";
         return jdbcTemplate.queryForList(sql);
     }
 	
