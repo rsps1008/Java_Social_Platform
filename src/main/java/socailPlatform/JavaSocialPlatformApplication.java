@@ -20,7 +20,17 @@ public class JavaSocialPlatformApplication {
 		public String coverImage;
 		public String biography;
 	}
-
+	
+	public static class LoginStatus {
+		public boolean loggedIn;
+		public String username;
+	}
+	
+	public static class addPostInfo {
+		public String user;
+		public String content;
+		public String imageUrl;
+	}
 	
 	public static void main(String[] args) {
 		SpringApplication.run(JavaSocialPlatformApplication.class, args);

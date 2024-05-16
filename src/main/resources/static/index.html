@@ -50,7 +50,7 @@
             },
             methods: {
                 login() {
-                    axios.post('/login', this.loginForm)
+                    axios.post('/UserController/login', this.loginForm)
                         .then(response => {
                             alert('Login successful');
                             window.location.href = 'posts.html';
@@ -61,7 +61,7 @@
                         });
                 },
                 register() {
-                    axios.post('/register', this.registerForm)
+                    axios.post('/UserController/register', this.registerForm)
                         .then(response => {
                             alert('Registration successful');
                             // Handle registration success

@@ -41,9 +41,9 @@
 		    <artifactId>spring-boot-starter-jdbc</artifactId>
 		</dependency>
 		<dependency>
-		    <groupId>org.springframework.session</groupId>
-		    <artifactId>spring-session</artifactId>
-		    <version>1.3.5.RELEASE</version>
+		    <groupId>jakarta.servlet</groupId>
+		    <artifactId>jakarta.servlet-api</artifactId>
+		    <scope>provided</scope>
 		</dependency>
 	</dependencies>
 

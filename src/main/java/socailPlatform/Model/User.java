@@ -6,6 +6,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import jakarta.servlet.http.HttpSession;
+//import socailPlatform.JavaSocialPlatformApplication.LoginStatus;
 
 import java.util.List;
 import java.util.Map;
@@ -14,7 +15,6 @@ import java.util.Map;
 public class User {
 	@Autowired
     private JdbcTemplate jdbcTemplate;
-	private HttpSession httpSession;
 
     public List<Map<String, Object>> getAllUsers() {
         String sql = "SELECT id, name FROM user";
@@ -22,11 +22,9 @@ public class User {
     }
     
     public boolean login(String username, String password) {
-        String sql = "SELECT COUNT(*) FROM user WHERE user = ? AND pass = ?";
+        String sql = "SELECT COUNT(*) FROM user WHERE name = ? AND pass = ?";
         Integer count = jdbcTemplate.queryForObject(sql, new Object[]{username, password}, Integer.class);
         if (count != null && count > 0) {
-        	httpSession.setAttribute("loggedIn", true);
-        	httpSession.setAttribute("user", username);
         	return true;
         }else {
         	return false;
