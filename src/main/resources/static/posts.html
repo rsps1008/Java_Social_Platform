@@ -40,10 +40,11 @@
 <body>
     <div id="app">
         
-        <div v-if="loggedIn"><button class="logout-button" @click="logout">登出</button>
-		<button class="user-button" onclick="location.href='user.html';" >管理使用者</button>
-		<h1 style="padding-left:5vw;">貼文首頁</h1>
-		<div style="display: inline-block;"></div>
+        <div v-if="loggedIn">
+			<button class="logout-button" @click="logout">登出</button>
+			<button class="user-button" onclick="location.href='user.html';" >管理使用者</button>
+			<h1 style="padding-left:5vw;">貼文首頁</h1>
+			<div style="display: inline-block;"></div>
 
             <div style="padding-left:5vw;">
                 <textarea style="width:80%;height:50px;" v-model="newPost.content" placeholder="寫點什麼...."></textarea><br/>
@@ -54,9 +55,10 @@
 				</label>
                 <button @click="addNewPost">儲存貼文</button><br/><br/>
 				<img id="preview" v-if="imageSrc" :src="imageSrc" style="max-width: 500px; max-height: 500px;"/>
-				
             </div>
-			
+		</div><div v-else>
+			<button class="logout-button" onclick="location.href='index.html';">登入</button>
+		</div>
             <table style="padding-top:20px; width: 90%; margin: 0px auto;">
                 <tbody>
                     <tr v-for="post in posts" :key="post.PostID">
@@ -94,8 +96,10 @@
 									{{ comment.Content }}
 								</div>
 								<br/>
-								<textarea style="width:80%;height:60px;" v-model="post.commentContent" placeholder="寫留言..."></textarea>
-								<button @click="addComment(post)">留言</button>
+								<div v-if="loggedIn">
+									<textarea style="width:80%;height:60px;" v-model="post.commentContent" placeholder="寫留言..."></textarea>
+									<button @click="addComment(post)">留言</button>
+								</div>
 							</div>
 							</div>
                         </td>
@@ -103,9 +107,9 @@
                 </tbody>
             </table>
         </div>
-        <div v-else>
-            <p>Please login first.</p>
-        </div>
+        <!-- <div v-else> -->
+            <!-- <p>Please login first.</p> -->
+        <!-- </div> -->
     </div>
 
     <script>

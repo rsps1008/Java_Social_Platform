@@ -14,9 +14,9 @@ public class JavaSocialPlatformApplication {
 	}
 	
 	public static class RegisterInfo {
-		public String username;
-		public String password;
+		public String name;
 		public String email;
+		public String password;
 		public String coverImage;
 		public String biography;
 	}

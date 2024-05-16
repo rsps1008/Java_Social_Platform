@@ -16,36 +16,35 @@
 			align-items: center;
 		}
 		#app {
-			/*width: 100%;  或者可以設定一個固定的寬度，例如 400px */
-			width: 600px; /* 限制最大寬度，根據需要調整 */
-			box-shadow: 0 0 10px rgba(0,0,0,0.1); /* 可選，添加一些陰影效果 */
-			padding: 80px; /* 可選，添加一些內邊距 */
-			text-align: center; /* 可選，使內部文字居中 */
+			box-shadow: 0 0 10px rgba(0,0,0,0.1); /* 添加一些陰影效果 */
+			padding: 80px; /* 添加一些內邊距 */
+			text-align: center; /* 使內部文字居中 */
 		}
 	</style>
 </head>
 <body>
     <div id="app">
         <div v-if="showLogin">
-            <h1>Login</h1>
+            <h1>帳號登入</h1>
             <form @submit.prevent="login">
                 <input type="text" v-model="loginForm.username" placeholder="Username"><br/>
                 <input type="password" v-model="loginForm.password" placeholder="Password"><br/><br/>
                 <button type="submit">登入</button>
                 <button type="button" @click="toggleView">註冊</button> <!-- Updated button type to 'button' -->
+				<button type="button" onclick="location.href='posts.html';">訪客登入</button>
             </form>
         </div>
 
         <div v-else>
-            <h1>Register</h1>
-            <form @submit.prevent="register">
-                <input type="tel" v-model="registerForm.username" placeholder="Telephone">
-                <input type="email" v-model="registerForm.email" placeholder="Email">
-                <input type="password" v-model="registerForm.password" placeholder="Password">
-                <input type="text" v-model="registerForm.coverImage" placeholder="Cover Image URL">
-                <textarea v-model="registerForm.biography" placeholder="Biography"></textarea>
-                <button type="submit">Register</button>
-                <button type="button" @click="toggleView">Back to Login</button> <!-- Changed text -->
+            <h1>帳號註冊</h1>
+            <form >
+                手機: <input type="tel" v-model="registerForm.name" placeholder="Telephone"><br/><br/>
+                信箱: <input type="email" v-model="registerForm.email" placeholder="Email"><br/><br/>
+                密碼: <input type="password" v-model="registerForm.password" placeholder="Password"><br/><br/>
+                圖片: <input type="text" v-model="registerForm.coverImage" placeholder="Cover Image URL"><br/><br/>
+                自介: <textarea v-model="registerForm.biography" placeholder="Biography"></textarea><br/><br/>
+                <button type="button" @click="register">註冊</button>
+                <button type="button" @click="toggleView">返回登入</button> <!-- @submit.prevent="register" -->
             </form>
         </div>
     </div>
@@ -60,6 +59,7 @@
                     password: ''
                 },
                 registerForm: {
+					name: '',
                     email: '',
                     password: '',
                     coverImage: '',
@@ -83,6 +83,7 @@
 						});
 				},
                 register() {
+					console.log(this.registerForm);
                     axios.post('/UserController/register', this.registerForm)
                         .then(response => {
                             alert('Registration successful');

@@ -56,7 +56,7 @@ public class UserController {
 
     @PostMapping("/UserController/register")
     public boolean register(@RequestBody RegisterInfo user) {
-    	return userService.register(user.username ,user.password, user.email, user.coverImage, user.biography);
+    	return userService.register(user.name ,user.email, user.password, user.coverImage, user.biography);
     }
     
 }

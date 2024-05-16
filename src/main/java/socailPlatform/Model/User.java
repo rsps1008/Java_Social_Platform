@@ -58,10 +58,10 @@ public class User {
         }
     }
     
-    public boolean register(String username, String password, String email, String coverImage, String biography) {
+    public boolean register(String name, String email, String password, String coverImage, String biography) {
         String hashedPassword = passwordEncoder.encode(password);
         String sql = "INSERT INTO `user` (`id`, `name`, `email`, `pass`, `image`, `bio`) VALUES (NULL, ?, ?, ?, ?, ?);";
-        return jdbcTemplate.update(sql, username, email, hashedPassword, coverImage, biography) > 0;
+        return jdbcTemplate.update(sql, name, email, hashedPassword, coverImage, biography) > 0;
     }
 
 }
