@@ -32,6 +32,11 @@ public class JavaSocialPlatformApplication {
 		public String imageUrl;
 	}
 	
+	public static class updatePostInfo {
+		public String postId;
+		public String content;
+	}
+	
 	public static void main(String[] args) {
 		SpringApplication.run(JavaSocialPlatformApplication.class, args);
 	}

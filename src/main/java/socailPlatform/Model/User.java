@@ -23,7 +23,7 @@ public class User {
     
     public boolean login(String username, String password) {
         String sql = "SELECT COUNT(*) FROM user WHERE name = ? AND pass = ?";
-        Integer count = jdbcTemplate.queryForObject(sql, new Object[]{username, password}, Integer.class);
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, username, password);
         if (count != null && count > 0) {
         	return true;
         }else {

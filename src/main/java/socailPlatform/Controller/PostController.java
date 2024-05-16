@@ -7,10 +7,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import socailPlatform.JavaSocialPlatformApplication.RegisterInfo;
 import socailPlatform.JavaSocialPlatformApplication.addPostInfo;
+import socailPlatform.JavaSocialPlatformApplication.updatePostInfo;
 import socailPlatform.Model.Post;
 
 @RestController
@@ -24,7 +27,15 @@ public class PostController {
     }
 	
 	@PostMapping("/PostController/addNewPost")
-	public boolean addNewPost(@RequestBody addPostInfo post) {
-    	return postService.addNewPost(post.user, post.content, post.imageUrl);
-    }
+	public boolean addNewPost(@RequestParam("user") String user,
+	                          @RequestParam("content") String content,
+	                          @RequestParam("image") MultipartFile image) {
+	    return postService.addNewPost(user, content, image);
+	}
+	
+	@PostMapping("/PostController/editPost")
+	public boolean editPost(@RequestBody updatePostInfo post) {
+	    return postService.editPost(post.postId, post.content);
+	}
+	
 }

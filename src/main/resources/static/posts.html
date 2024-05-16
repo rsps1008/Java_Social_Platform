@@ -6,38 +6,47 @@
     <title>Posts Page</title>
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-	<script src="https://cdn.jsdelivr.net/npm/js-cookie@3/dist/js.cookie.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/js-cookie@3/dist/js.cookie.min.js"></script>
 
 </head>
 <body>
     <div id="app">
         <h1>Posts Page</h1>
         <div v-if="loggedIn">
-            <button @click="logout">Logout</button>
-			<table>
-				<tbody>
-					<tr v-for="post in posts" :key="post.id">
-						<td>
-						<div>
-							<img :src="post.UserAvatar" style="width:50px; height:50px;">
-							<div style="display: inline-block;">
-								<strong>{{ post.UserID }}</strong><br>
-								<small>{{ post.Created }}</small>
-							</div>
-						</div>
-						<div>
-							{{ post.Content }}
-						</div>
-						</td>
-					</tr>
-				</tbody>
-			</table>
-            <button @click="showAddPostForm = !showAddPostForm">Add New Post</button>
+		<div style="display: inline-block;"><button @click="logout">Logout</button></div>
+            
+			<button @click="showAddPostForm = !showAddPostForm">新增貼文</button>
             <div v-if="showAddPostForm">
-                <input type="text" v-model="newPost.content" placeholder="Content">
-                <input type="text" v-model="newPost.imageUrl" placeholder="Image URL">
-                <button @click="addNewPost">Submit</button>
+                <textarea v-model="newPost.content" placeholder="寫點什麼...."></textarea>
+                <input type="file" @change="handleFileChange">
+                <button @click="addNewPost">儲存貼文</button>
             </div>
+            <table>
+                <tbody>
+                    <tr v-for="post in posts" :key="post.id">
+                        <td style="border: 1px solid #ccc; padding: 20px;">
+                            <div>
+                                <img src="./image/head.png" style="width:50px; height:50px;">
+                                <div style="display: inline-block;">
+                                    <strong>{{ post.UserName }}</strong><br>
+                                    <small>{{ post.Created }}</small>
+                                </div>
+                            </div>
+							<div v-if="!post.isEditing">
+								{{ post.Content }}
+								<button @click="enableEditing(post)" v-if="checkUser(post)">編輯</button>
+							</div>
+							<div v-else>
+								<textarea v-model="post.editedContent"></textarea>
+								<button @click="savePost(post)">儲存</button>
+							</div>
+							<div>
+								<img v-if="post.Image !== null && typeof post.Image !== 'undefined' && post.Image !== ''" :src="'data:image/png;base64,' + post.Image" style="max-width: 200px; max-height: 200px;">
+							</div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
         <div v-else>
             <p>Please login first.</p>
@@ -45,69 +54,118 @@
     </div>
 
     <script>
-		new Vue({
-			el: '#app',
-			data: {
-				loggedIn: false,
-				user: '',
-				posts: [],
-				newPost: {
-					user: '',
-					content: '',
-					imageUrl: ''
-				},
-				showAddPostForm: false
-			},
-			created() {
-				this.checkLoggedIn();
-				this.getAllPosts();
-			},
-			methods: {
-				checkLoggedIn() {
-					// Check cookies for login status
-					var loggedInCookie = Cookies.get('loggedIn');
+		console.log(document.cookie);
+        new Vue({
+            el: '#app',
+            data: {
+                loggedIn: false,
+                user: '',
+                posts: [],
+                newPost: {
+                    user: '',
+                    content: '',
+                    image: ''
+                },
+                showAddPostForm: false
+            },
+            created() {
+                this.checkLoggedIn();
+                this.getAllPosts();
+            },
+            methods: {
+				checkUser(post) {
+					// console.log("post",post);
+					
 					var userCookie = Cookies.get('user');
-
-					if (loggedInCookie === '1') {
-						this.loggedIn = true;
-						this.user = userCookie;
+					//console.log("checkUser",userCookie, post.UserName);
+					if (userCookie == post.UserName) {
+						console.log("出現按鈕",userCookie, post.UserName);
+						return true;
 					} else {
-						this.loggedIn = false;
-						// Optionally redirect to login page
-						window.location.href = 'index.html';
+						return false;
 					}
 				},
-				getAllPosts() {
-					axios.get('/PostController/getAllPosts')
+				enableEditing(post) {
+					Vue.set(post, 'isEditing', true);
+					Vue.set(post, 'editedContent', post.Content);
+				},
+				savePost(post) {
+					post.Content = post.editedContent;
+					post.isEditing = false;
+					this.editPost(post.PostID, post.Content); // 调用 editPost 方法更新后端
+				},
+                checkLoggedIn() {
+                    // Check cookies for login status
+                    var loggedInCookie = Cookies.get('loggedIn');
+                    var userCookie = Cookies.get('user');
+					
+					console.log("loggedInCookie",loggedInCookie);
+                    if (loggedInCookie == '1') {
+                        this.loggedIn = true;
+                    } else {
+                        this.loggedIn = false;
+                        // Optionally redirect to login page
+                        //window.location.href = 'index.html';
+                    }
+                },
+				editPost(postId, content) {
+					// 發送 POST 請求到後端更新貼文內文
+					console.log("send",postId,content);
+					axios.post('/PostController/editPost', { postId: postId, content: content })
 						.then(response => {
-							this.posts = response.data;
+							console.log('Post content updated successfully:', response.data);
+							// 在這裡可以執行一些操作，例如刷新帖子列表
 						})
 						.catch(error => {
-							console.error('Error fetching posts:', error);
+							console.error('Error updating post content:', error);
 						});
-				},		
-				logout() {
-					// Clear cookies on logout
-					Cookies.remove('loggedIn');
-					Cookies.remove('user');
-					window.location.href = 'index.html';
+				},
+                getAllPosts() {
+                    axios.get('/PostController/getAllPosts')
+                        .then(response => {
+                            this.posts = response.data;
+							console.log(response.data);
+                        })
+                        .catch(error => {
+                            console.error('Error fetching posts:', error);
+                        });
+                },
+                logout() {
+                    // Clear cookies on logout
+                    Cookies.remove('loggedIn');
+                    Cookies.remove('user');
+                    window.location.href = 'index.html';
+                },
+                handleFileChange(event) {
+					const file = event.target.files[0];
+					this.newPost.image = file;
 				},
 				addNewPost() {
 					// 將新增貼文的使用者設置為當前登入用戶
 					this.newPost.user = this.user;
 
-					axios.post('/PostController/addNewPost', this.newPost)
-						.then(response => {
-							console.log('Post added successfully:', response.data);
-							this.getAllPosts(); // Refresh posts after adding new post
-							this.newPost = { user: '', content: '', imageUrl: '' }; // Clear input fields
-						})
-						.catch(error => {
-							console.error('Error adding new post:', error);
-						});
+					// 使用 FormData 將資料和圖片一併上傳
+					const formData = new FormData();
+					formData.append('user', this.newPost.user);
+					formData.append('content', this.newPost.content);
+					formData.append('image', this.newPost.image);
+
+					axios.post('/PostController/addNewPost', formData, {
+						headers: {
+							'Content-Type': 'multipart/form-data'
+						}
+					})
+					.then(response => {
+						console.log('Post added successfully:', response.data);
+						this.getAllPosts(); // 添加新帖子後刷新帖子列表
+						this.newPost = { user: '', content: '', image: '' }; // 清空輸入字段
+					})
+					.catch(error => {
+						console.error('Error adding new post:', error);
+					});
 				}
-			}
-		});
-	</script>
+            }
+        });
+    </script>
 </body>
 </html>

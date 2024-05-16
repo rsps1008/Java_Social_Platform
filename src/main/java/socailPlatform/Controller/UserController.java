@@ -32,18 +32,24 @@ public class UserController {
 	@PostMapping("/UserController/login")
     public boolean login(@RequestBody LoginInfo user, HttpServletResponse response) {
 		boolean login = userService.login(user.username ,user.password);
-		Cookie cookie;
+		Cookie loggedIn_cookie;
+		Cookie username_cookie;
 		if(login) {
 			//session.setAttribute("loggedIn", true);
 			//session.setAttribute("user", user.username);
-			cookie = new Cookie("loggedIn", "1");
-			response.addCookie(cookie);
-			cookie = new Cookie("user", user.username);
-			response.addCookie(cookie);
+			loggedIn_cookie = new Cookie("loggedIn", "1");
+			loggedIn_cookie.setPath("/");
+			loggedIn_cookie.setMaxAge(60 * 60 * 24 * 7);
+			response.addCookie(loggedIn_cookie);
+			username_cookie = new Cookie("user", user.username);
+			username_cookie.setPath("/");
+			username_cookie.setMaxAge(60 * 60 * 24 * 7); 
+			response.addCookie(username_cookie);
 		}else {
-			cookie = new Cookie("loggedIn", null);
-			cookie.setMaxAge(0);
-			response.addCookie(cookie);
+			loggedIn_cookie = new Cookie("loggedIn", null);
+			loggedIn_cookie.setPath("/");
+			loggedIn_cookie.setMaxAge(0);
+			response.addCookie(loggedIn_cookie);
 		}
 		return login;
     }

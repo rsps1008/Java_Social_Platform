@@ -49,17 +49,21 @@
                 }
             },
             methods: {
-                login() {
-                    axios.post('/UserController/login', this.loginForm)
-                        .then(response => {
-                            alert('Login successful');
-                            window.location.href = 'posts.html';
-                        })
-                        .catch(error => {
-                            alert('Login failed');
-                            // Handle login failure
-                        });
-                },
+				login() {
+					axios.post('/UserController/login', this.loginForm)
+						.then(response => {
+							if (response.data == 1) {
+								alert('Login successful');
+								window.location.href = 'posts.html';
+							} else {
+								alert('Login failed');
+							}
+						})
+						.catch(error => {
+							alert('Login failed');
+							// Handle login failure
+						});
+				},
                 register() {
                     axios.post('/UserController/register', this.registerForm)
                         .then(response => {
