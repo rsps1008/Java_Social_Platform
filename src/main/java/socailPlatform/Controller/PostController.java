@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import socailPlatform.JavaSocialPlatformApplication.RegisterInfo;
+import socailPlatform.JavaSocialPlatformApplication.addCommebtInfo;
 import socailPlatform.JavaSocialPlatformApplication.addPostInfo;
 import socailPlatform.JavaSocialPlatformApplication.updatePostInfo;
 import socailPlatform.Model.Post;
@@ -26,10 +27,15 @@ public class PostController {
     	return postService.getAllPosts();
     }
 	
+	@GetMapping("/PostController/getAllComments")
+	public List<Map<String, Object>> getAllComments() {
+    	return postService.getAllComments();
+    }
+	
 	@PostMapping("/PostController/addNewPost")
 	public boolean addNewPost(@RequestParam("user") String user,
 	                          @RequestParam("content") String content,
-	                          @RequestParam("image") MultipartFile image) {
+	                          @RequestParam(value = "image", required = false) MultipartFile image) {
 	    return postService.addNewPost(user, content, image);
 	}
 	
@@ -38,4 +44,8 @@ public class PostController {
 	    return postService.editPost(post.postId, post.content);
 	}
 	
+	@PostMapping("/CommentController/addComment")
+    public boolean addComment(@RequestBody addCommebtInfo comment) {
+        return postService.addCommentModel(comment.userId, comment.postId, comment.content);
+    }
 }

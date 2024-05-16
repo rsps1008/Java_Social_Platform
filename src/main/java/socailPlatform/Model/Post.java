@@ -16,16 +16,42 @@ public class Post {
     private JdbcTemplate jdbcTemplate;
 	
 	public List<Map<String, Object>> getAllPosts() {
-		String sql = "SELECT post.*, user.name AS UserName FROM post JOIN user ON post.UserID = user.id;";
+		String sql = "SELECT post.*, user.name AS UserName FROM post JOIN user ON post.UserID = user.id ORDER BY `post`.`Created` DESC;";
         return jdbcTemplate.queryForList(sql);
     }
 	
-	public boolean addNewPost(String user, String content, MultipartFile image) {
+	public List<Map<String, Object>> getAllComments() {
+		String sql = "SELECT * FROM comment;";
+        return jdbcTemplate.queryForList(sql);
+    }
+	
+	/*public boolean addNewPost(String user, String content, MultipartFile image) {
 	    try {
 	        byte[] imageData = image.getBytes(); // 取得圖片的二進位數據
 	        // 執行 SQL 語句以儲存帖子和圖片數據
 	        String sql = "INSERT INTO `post`(`UserID`, `Content`, `Image`) VALUES (?,?,?)";
 	        return jdbcTemplate.update(sql, user, content, imageData) > 0;
+	    } catch (IOException e) {
+	        e.printStackTrace();
+	        return false;
+	    }
+	}*/
+	public boolean addNewPost(String user, String content, MultipartFile image) {
+	    try {
+	    	String getUserIdSql = "SELECT id FROM user WHERE name = ?";
+            Integer userId = jdbcTemplate.queryForObject(getUserIdSql, Integer.class, user);
+            
+            if (userId != null) {
+	            byte[] imageData = null; // 預設將 imageData 設置為 null
+		        if (image != null && !image.isEmpty()) {
+		            imageData = image.getBytes(); // 如果圖片不為空，則取得圖片的二進位數據
+		        }
+		        // 執行 SQL 語句以儲存帖子和圖片數據
+		        String sql = "INSERT INTO `post`(`UserID`, `Content`, `Image`) VALUES (?,?,?)";
+		        return jdbcTemplate.update(sql, userId, content, imageData) > 0;
+            } else {
+                return false;
+            }
 	    } catch (IOException e) {
 	        e.printStackTrace();
 	        return false;
@@ -36,4 +62,9 @@ public class Post {
 	    String sql = "UPDATE post SET Content = ? WHERE PostID = ?";
 		return jdbcTemplate.update(sql, content, postId) > 0;
 	}
+	
+	public boolean addCommentModel(String userId, String postId, String content) {
+        String sql = "INSERT INTO comment (UserID, PostID, Content) VALUES (?, ?, ?)";
+        return jdbcTemplate.update(sql, userId, postId, content) > 0;
+    }
 }

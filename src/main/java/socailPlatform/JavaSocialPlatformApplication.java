@@ -37,6 +37,12 @@ public class JavaSocialPlatformApplication {
 		public String content;
 	}
 	
+	public static class addCommebtInfo {
+		public String userId;
+		public String postId;
+		public String content;
+	}
+	
 	public static void main(String[] args) {
 		SpringApplication.run(JavaSocialPlatformApplication.class, args);
 	}
