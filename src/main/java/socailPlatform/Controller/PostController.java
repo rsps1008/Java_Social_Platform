@@ -14,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 import socailPlatform.JavaSocialPlatformApplication.RegisterInfo;
 import socailPlatform.JavaSocialPlatformApplication.addCommebtInfo;
 import socailPlatform.JavaSocialPlatformApplication.addPostInfo;
+import socailPlatform.JavaSocialPlatformApplication.deletePostInfo;
 import socailPlatform.JavaSocialPlatformApplication.updatePostInfo;
 import socailPlatform.Model.Post;
 
@@ -42,6 +43,11 @@ public class PostController {
 	@PostMapping("/PostController/editPost")
 	public boolean editPost(@RequestBody updatePostInfo post) {
 	    return postService.editPost(post.postId, post.content);
+	}
+	
+	@PostMapping("/PostController/deletePost")
+	public boolean deletePost(@RequestBody deletePostInfo post) {
+	    return postService.deletePost(post.postId);
 	}
 	
 	@PostMapping("/CommentController/addComment")

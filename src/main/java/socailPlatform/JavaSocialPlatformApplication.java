@@ -37,6 +37,10 @@ public class JavaSocialPlatformApplication {
 		public String content;
 	}
 	
+	public static class deletePostInfo {
+		public String postId;
+	}
+	
 	public static class addCommebtInfo {
 		public String userId;
 		public String postId;

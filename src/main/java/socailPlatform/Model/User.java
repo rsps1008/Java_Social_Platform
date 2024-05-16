@@ -24,7 +24,7 @@ public class User {
 	private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     public List<Map<String, Object>> getAllUsers() {
-        String sql = "SELECT id, name FROM user";
+        String sql = "SELECT * FROM user";
         return jdbcTemplate.queryForList(sql);
     }
     

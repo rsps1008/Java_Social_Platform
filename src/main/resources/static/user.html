@@ -6,32 +6,103 @@
     <title>Vue Example</title>
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/js-cookie@3/dist/js.cookie.min.js"></script>
+	<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+
+        .table-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh; /* 垂直置中 */
+        }
+		.logout-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+		.post-button {
+            position: absolute;
+            top: 10px;
+            right: 4vw;
+        }
+    </style>
 </head>
 <body>
     <div id="app">
-        <h1>用户列表</h1>
-        <ul>
-            <li v-for="user in users" :key="user.id">
-                ID: {{ user.id }}, 名字: {{ user.name }}
-            </li>
-        </ul>
+		<button class="logout-button" @click="logout">登出</button>
+		<button class="post-button" onclick="location.href='posts.html';" >貼文首頁</button>
+        <div v-if="loggedIn">
+            <div class="container-fluid table-container">
+				<table class="table table-striped">
+					<thead>
+						<tr>
+							<th>ID</th>
+							<th>名字</th>
+							<th>Email</th>
+							<th>Image</th>
+							<th>Bio</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr v-for="user in users" :key="user.id">
+							<td>{{ user.id }}</td>
+							<td>{{ user.name }}</td>
+							<td>{{ user.email }}</td>
+							<td>{{ user.image }}</td>
+							<td>{{ user.bio }}</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+        </div>
+        <div v-else>
+            <p>Please login first.</p>
+        </div>
     </div>
 
     <script>
         new Vue({
             el: '#app',
             data: {
+				loggedIn: false,
                 users: []
             },
+			created() {
+                this.checkLoggedIn();
+            },
             mounted() {
-                axios.get('/users')
+                axios.get('/UserController/users')
                     .then(response => {
                         this.users = response.data;
                     })
                     .catch(error => {
                         console.error("There was an error fetching the users: ", error);
                     });
-            }
+            },
+			methods: {
+				checkLoggedIn() {
+                    // Check cookies for login status
+                    var loggedInCookie = Cookies.get('loggedIn');
+                    var userCookie = Cookies.get('user');
+					
+					//console.log("loggedInCookie",loggedInCookie);
+                    if (loggedInCookie == '1') {
+                        this.loggedIn = true;
+                        this.user = userCookie;
+                    } else {
+                        this.loggedIn = false;
+                        // Optionally redirect to login page
+                        //window.location.href = 'index.html';
+                    }
+                },
+				logout() {
+                    // Clear cookies on logout
+                    Cookies.remove('loggedIn');
+                    Cookies.remove('user');
+                    window.location.href = 'index.html';
+                }
+			}
         });
     </script>
 </body>

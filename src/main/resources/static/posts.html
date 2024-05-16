@@ -7,47 +7,96 @@
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/js-cookie@3/dist/js.cookie.min.js"></script>
-
+	<style>
+		body {
+			font-family: "Microsoft JhengHei", "Helvetica Neue", Helvetica, Arial, sans-serif;
+		}
+		#fileInput {
+			display: none;
+		}
+		.custom-file-upload {
+			display: inline-block;
+			padding: 1px 2px;
+			cursor: pointer;
+			background-color: #f8f9fa;
+			border: 1px solid #ccc;
+			border-radius: 4px;
+		}
+		.custom-file-upload:hover {
+			background-color: #e2e6ea;
+		}
+		.logout-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+		.user-button {
+            position: absolute;
+            top: 10px;
+            right: 4vw;
+        }
+	</style>
 </head>
 <body>
     <div id="app">
-        <h1>Posts Page</h1>
-        <div v-if="loggedIn">
-		<div style="display: inline-block;"><button @click="logout">Logout</button></div>
-            
-			<button @click="showAddPostForm = !showAddPostForm">新增貼文</button>
-            <div v-if="showAddPostForm">
-                <textarea v-model="newPost.content" placeholder="寫點什麼...."></textarea>
-                <input type="file" @change="handleFileChange">
-                <button @click="addNewPost">儲存貼文</button>
+        
+        <div v-if="loggedIn"><button class="logout-button" @click="logout">登出</button>
+		<button class="user-button" onclick="location.href='user.html';" >管理使用者</button>
+		<h1 style="padding-left:5vw;">貼文首頁</h1>
+		<div style="display: inline-block;"></div>
+
+            <div style="padding-left:5vw;">
+                <textarea style="width:80%;height:50px;" v-model="newPost.content" placeholder="寫點什麼...."></textarea><br/>
+                <!-- <input type="file" @change="handleFileChange"/> -->
+				<input type="file" id="fileInput" @change="handleImageChange" accept=".png"/>
+				<label for="fileInput" class="custom-file-upload">
+					選擇照片
+				</label>
+                <button @click="addNewPost">儲存貼文</button><br/><br/>
+				<img id="preview" v-if="imageSrc" :src="imageSrc" style="max-width: 500px; max-height: 500px;"/>
+				
             </div>
 			
             <table style="padding-top:20px; width: 90%; margin: 0px auto;">
                 <tbody>
-                    <tr v-for="post in posts" :key="post.id">
+                    <tr v-for="post in posts" :key="post.PostID">
                         <td style="border: 1px solid #ccc; padding: 20px;">
+                            <div  style="border: 1px solid #ccc; padding: 10px;">
                             <div>
                                 <img src="./image/head.png" style="width:50px; height:50px;">
                                 <div style="display: inline-block;">
                                     <strong>{{ post.UserName }}</strong><br>
-                                    <small>{{ post.Created }}</small>
+                                    <small>{{ formatDate(post.Created) }}</small>
                                 </div>
                             </div>
 							<div v-if="!post.isEditing">
+								
 								{{ post.Content }}
-								<button @click="enableEditing(post)" v-if="checkUser(post)">編輯</button>
+								<span style="color:blue;text-decoration: underline;" @click="enableEditing(post)" v-if="checkUser(post)">(編輯)</span>
 							</div>
 							<div v-else>
-								<textarea v-model="post.editedContent"></textarea>
+								<textarea style="width:80%;height:150px;" v-model="post.editedContent"></textarea>
+								<br/>
 								<button @click="savePost(post)">儲存</button>
+								<button @click="cancelEditing(post)">取消</button>
+								<button @click="deletePost(post.PostID)">刪除</button>
 							</div>
+							</div>
+							<div  style="border: 1px solid #ccc; padding: 10px;">
 							<div>
 								<img v-if="post.Image !== null && typeof post.Image !== 'undefined' && post.Image !== ''" :src="'data:image/png;base64,' + post.Image" style="max-width: 200px; max-height: 200px;">
 							</div>
 							<div>
 								<h3>Comments</h3>
-								<textarea v-model="post.commentContent" placeholder="寫留言..."></textarea>
+								<div v-for="comment in comments" v-if="comment.PostID == post.PostID" :key="comment.CommentID">
+								<!-- <div v-for="comment in comments" :key="comment.CommentID"> -->
+									<strong>{{ comment.UserName }}</strong> <small>{{ formatDate(comment.CreatedAt) }}</small><br>
+									{{ comment.Content }}
+								</div>
+								<br/>
+								<textarea style="width:80%;height:60px;" v-model="post.commentContent" placeholder="寫留言..."></textarea>
 								<button @click="addComment(post)">留言</button>
+							</div>
 							</div>
                         </td>
                     </tr>
@@ -73,7 +122,7 @@
                     image: ''
                 },
 				comments: [],
-                showAddPostForm: false
+				imageSrc: null
             },
             created() {
                 this.checkLoggedIn();
@@ -81,19 +130,32 @@
                 this.getAllComments();
             },
             methods: {
-				addComment(post) {
-					axios.post('/CommentController/addComment', {
-						userId: post.UserName,
-						postId: post.PostID,
-						content: post.commentContent
-					})
-					.then(response => {
-						//this.getCommentsByPostId(postId);
-						//this.content = '';
-					})
-					.catch(error => {
-						console.error('Error adding comment:', error);
-					});
+				formatDate(value) {
+					if (value) {
+						const date = new Date(value);
+						return new Intl.DateTimeFormat('zh-TW', {
+							year: 'numeric',
+							month: '2-digit',
+							day: '2-digit',
+							hour: '2-digit',
+							minute: '2-digit',
+							second: '2-digit'
+						}).format(date);
+					}
+					return value;
+				},
+				handleImageChange(event) {
+					const file = event.target.files[0]; // 取得選擇的檔案
+					if (file && file.type.startsWith('image/')) { // 確認是否為圖片檔案
+						this.newPost.image = file;
+						const reader = new FileReader(); // 建立一個 FileReader 來讀取檔案
+						reader.onload = (e) => {
+							this.imageSrc = e.target.result; // 將讀取到的圖片結果賦值給 imageSrc
+						};
+						reader.readAsDataURL(file); // 讀取檔案為 Data URL
+					} else {
+						this.imageSrc = null; // 如果不是圖片檔，清空預覽
+					}
 				},
 				checkUser(post) {
 					// console.log("post",post);
@@ -101,7 +163,7 @@
 					var userCookie = Cookies.get('user');
 					//console.log("checkUser",userCookie, post.UserName);
 					if (userCookie == post.UserName) {
-						console.log("出現按鈕",userCookie, post.UserName);
+						//console.log("出現按鈕",userCookie, post.UserName);
 						return true;
 					} else {
 						return false;
@@ -115,6 +177,11 @@
 					post.Content = post.editedContent;
 					post.isEditing = false;
 					this.editPost(post.PostID, post.Content); // 调用 editPost 方法更新后端
+				},
+				cancelEditing(post) {
+					// 取消編輯的邏輯
+					post.isEditing = false;  // 關閉編輯模式
+					post.editedContent = post.Content;  // 恢復原始內容，假設你在開始編輯時已經將原始內容保存到了 `post.editedContent` 中
 				},
                 checkLoggedIn() {
                     // Check cookies for login status
@@ -137,7 +204,17 @@
 					axios.post('/PostController/editPost', { postId: postId, content: content })
 						.then(response => {
 							console.log('Post content updated successfully:', response.data);
-							// 在這裡可以執行一些操作，例如刷新帖子列表
+						})
+						.catch(error => {
+							console.error('Error updating post content:', error);
+						});
+				},
+				deletePost(postId) {
+					// 發送 POST 請求到後端更新貼文內文
+					axios.post('/PostController/deletePost', { postId: postId })
+						.then(response => {
+							console.log('Post content delete successfully:', response.data);
+							this.getAllPosts(); // 刷新帖子列表
 						})
 						.catch(error => {
 							console.error('Error updating post content:', error);
@@ -169,10 +246,6 @@
                     Cookies.remove('user');
                     window.location.href = 'index.html';
                 },
-                handleFileChange(event) {
-					const file = event.target.files[0];
-					this.newPost.image = file;
-				},
 				addNewPost() {
 					// 將新增貼文的使用者設置為當前登入用戶
 					this.newPost.user = this.user;
@@ -194,9 +267,24 @@
 						console.log('Post added successfully:', response.data);
 						this.getAllPosts(); // 添加新帖子後刷新帖子列表
 						this.newPost = { user: '', content: '', image: '' }; // 清空輸入字段
+						this.imageSrc = null;
 					})
 					.catch(error => {
 						console.error('Error adding new post:', error);
+					});
+				},
+				addComment(post) {
+					axios.post('/CommentController/addComment', {
+						userId: post.UserID,
+						postId: post.PostID,
+						content: post.commentContent
+					})
+					.then(response => {
+						this.getAllComments();
+						this.getAllPosts(); // 刷新帖子列表
+					})
+					.catch(error => {
+						console.error('Error adding comment:', error);
 					});
 				}
             }
