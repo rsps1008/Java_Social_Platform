@@ -23,7 +23,7 @@ public class Post {
     }
 	
 	public List<Map<String, Object>> getAllComments() {
-		String sql = "SELECT comment.*, user.name AS UserName FROM comment JOIN user ON user.id = comment.UserID ORDER BY `CreatedAt` DESC;";
+		String sql = "SELECT comment.*, user.name AS UserName, user.image AS UserImage FROM comment JOIN user ON user.id = comment.UserID ORDER BY `CreatedAt` DESC;";
         return jdbcTemplate.queryForList(sql);
     }
 	

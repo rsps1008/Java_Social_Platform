@@ -92,8 +92,14 @@
 								<h3>Comments</h3>
 								<div v-for="comment in comments" v-if="comment.PostID == post.PostID" :key="comment.CommentID">
 								<!-- <div v-for="comment in comments" :key="comment.CommentID"> -->
-									<strong>{{ comment.UserName }}</strong> <small>{{ formatDate(comment.CreatedAt) }}</small><br>
-									{{ comment.Content }}
+									<table>
+									<tr>
+									<td><img v-if="comment.UserImage !== null && typeof comment.UserImage !== 'undefined' && comment.UserImage !== ''" :src="getImageSrc(comment.UserImage)" style="max-width: 60px; max-height: 60px;"></td>
+									
+									<td><strong>{{ comment.UserName }}</strong> <small>{{ formatDate(comment.CreatedAt) }}</small><br>
+									{{ comment.Content }}</td>
+									</tr>
+									</table>
 								</div>
 								<br/>
 								<div v-if="loggedIn">
@@ -162,11 +168,12 @@
 						return 'image/bmp';
 					}
 
-					return '';
+					return 'image/png';
 				},
 				getImageSrc(base64Data) {
 					const mimeType = this.getImageMimeType(base64Data);
 					if (!mimeType) return '';
+					console.log("mimeType",mimeType);
 					return `data:${mimeType};base64,${base64Data}`;
 				},
 				formatDate(value) {
