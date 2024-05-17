@@ -14,7 +14,10 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh; /* 垂直置中 */
+            
+			width: 90vw;
+			padding-top: 60px;
+			padding-bottom: 60px;
         }
 		.logout-button {
             position: absolute;
@@ -49,7 +52,8 @@
 							<td>{{ user.id }}</td>
 							<td>{{ user.name }}</td>
 							<td>{{ user.email }}</td>
-							<td>{{ user.image }}</td>
+							<!-- <td>{{ user.image }}</td> -->
+							<td><img v-if="user.image !== null && typeof user.image !== 'undefined' && user.image !== ''" :src="'data:image/png;base64,' + user.image" style="max-width: 100px; max-height: 100px;"/></td>
 							<td>{{ user.bio }}</td>
 						</tr>
 					</tbody>
